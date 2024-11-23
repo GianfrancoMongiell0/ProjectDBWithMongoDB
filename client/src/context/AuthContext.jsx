@@ -1,5 +1,6 @@
 import { createContext, useState, useContext } from "react";
 import { registerRequest, loginRequest } from '../api/auth';
+import { set } from "mongoose";
 
 export const AuthContext = createContext();
 
@@ -15,6 +16,7 @@ export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false); // Estado de autenticación
     const [user, setUser] = useState(null); // Datos del usuario
     const [loading, setLoading] = useState(false); // Indicador de carga
+    const [error, setError] = useState([]); // Manejo de errores
 
     // Registro de usuario
     const signup = async (user) => {
@@ -25,8 +27,9 @@ export const AuthProvider = ({ children }) => {
             setUser(res.data); // Guardando el usuario en el estado
             setIsAuthenticated(true); // Cambiando el estado de autenticación
         } catch (error) {
-            console.error("Error en el registro:", error);
-            throw error.response?.data?.message || "Error al registrar el usuario";
+           console.log("Error en el registro: ", error.response)
+           setError(error.response.data)
+
         } finally {
             setLoading(false);
         }
@@ -61,6 +64,7 @@ export const AuthProvider = ({ children }) => {
             login,
             user,
             isAuthenticated,
+            error,
             loading // Indicador de carga para usar en las vistas si es necesario
         }}>
             {children}

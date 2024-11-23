@@ -9,21 +9,24 @@ function RegisterPage() {
     handleSubmit,
     formState: { errors },
   } = useForm(); // Inicializando el hook useForm
-  const { signup } = useAuth(); // Obteniendo la función signup del contexto AuthContext
+  const { signup, isAuthenticated, error: registerError } = useAuth(); // Obteniendo la función signup del contexto AuthContext
+
   const navigate = useNavigate(); // Obteniendo la función navigate de react-router-dom
   const [successMessage, setSuccessMessage] = useState("");
 
-  const onSubmit = handleSubmit(async (values) => {
-    try {
-      await signup(values); // Llamando a la función signup con los valores del formulario
-      setSuccessMessage("Registro exitoso. Redirigiendo al login...");
+  useEffect(() => {
+    if (isAuthenticated) {
+      setSuccessMessage("Ya estás autenticado. Redirigiendo al dashboard...");
       setTimeout(() => {
-        navigate("/login"); // Redirigir al usuario al login después de 2 segundos
+        navigate("/tasks"); // Redirigir al usuario al dashboard después de 2 segundos
       }, 2000);
-    } catch (error) {
-      console.error("Error en el registro:", error); // Manejo de errores en el registro
     }
-  });
+  }, [isAuthenticated]);
+
+  const onSubmit = handleSubmit(async (values) => {
+    signup(values); // Llamando a la función signup con los valores del formulario
+
+  })
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-green-400 via-blue-500 to-purple-500 p-4 sm:p-6 lg:p-8">
@@ -31,14 +34,20 @@ function RegisterPage() {
         <h1 className="text-4xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-green-500 mb-4">
           ¡Bienvenido a la Página de Registro!
         </h1>
-        <p className="text-center text-gray-600 mb-6">
+        <p className="text-center text-gray-600 mb-6"> o
           Crea una cuenta para comenzar a gestionar tus tareas y disfrutar de nuestras funcionalidades.
         </p>
         {successMessage && (
-          <p className="text-green-500 text-center mb-4">{successMessage}</p>
+          <p className="text-green-500 text-center mb-4 rounded-lg font-mono">{successMessage}</p>
         )}
+        {
+          registerError.map((error, i) =>
+            <div className="bg-red-500  text-center mb-4 rounded-lg font-mono">
+              {error}
+            </div>)
+        }
         <form className="space-y-4" onSubmit={onSubmit}>
-          <div>
+          <div> // Campo de nombre
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">
               Nombre
             </label>

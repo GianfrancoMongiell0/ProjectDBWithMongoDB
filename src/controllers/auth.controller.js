@@ -6,6 +6,9 @@ export const register = async (req, res) => {
     const { name, lastname, username, email, password } = req.body // Obteniendo los datos del usuario
 
     try {
+        const userFound = await User.findOne({ $or: [{ username }, { email }] }) // Buscando el usuario en la base de datos
+        if (userFound) return res.status(400).json(["El nombre de usuario o el correo electrónico ya están en uso"]) // Verificando si el usuario ya existe
+
         const passwordHash = await bcrypt.hash(password, 10) // Hasheando la contraseña
 
         // Creando un nuevo usuario
